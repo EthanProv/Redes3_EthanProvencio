@@ -1,0 +1,37 @@
+configure terminal
+interface GigabitEthernet0/0/0
+ ip address dhcp
+ ip nat outside
+ no shutdown
+ exit
+interface GigabitEthernet0/0/1
+ no shutdown
+ exit
+interface GigabitEthernet0/0/1.99
+ encapsulation dot1Q 99 native
+ ip address 192.168.99.1 255.255.255.0
+ ip nat inside
+ exit
+interface GigabitEthernet0/0/1.10
+ encapsulation dot1Q 10
+ ip address 192.168.10.1 255.255.255.0
+ ip nat inside
+ exit
+interface GigabitEthernet0/0/1.20
+ encapsulation dot1Q 20
+ ip address 192.168.20.1 255.255.255.0
+ ip nat inside
+ exit
+access-list 1 permit 192.168.0.0 0.0.255.255
+ip nat inside source list 1 interface GigabitEthernet0/0/0 overload
+ip access-list extended BLOQUEO_VLAN99
+ deny ip 192.168.99.0 0.0.0.255 192.168.10.0 0.0.0.255
+ deny ip 192.168.99.0 0.0.0.255 192.168.20.0 0.0.0.255
+ deny ip 192.168.99.0 0.0.0.255 host 192.168.99.1
+ permit ip 192.168.99.0 0.0.0.255 any
+ exit
+interface GigabitEthernet0/0/1.99
+ ip access-group BLOQUEO_VLAN99 in
+ exit
+end
+write memory
